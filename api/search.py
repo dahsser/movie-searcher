@@ -1,16 +1,15 @@
-from http.server import BaseHTTPRequestHandler
 import requests
 from bs4 import BeautifulSoup
 import unicodedata
 import json
+from flask import Flask, Response
 
-class handler(BaseHTTPRequestHandler):
-	def do_GET(self):
-		self.send_response(200)
-		self.send_header('Content-type','text/plain')
-		self.end_headers()
-		
-		self.wfile.write(message.encode())
+app = Flask(__name__)
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def catch_all(path):
+  return Response("<h1>Flask</h1><p>You visited: /%s</p>" % (path), mimetype="text/html")
 
 # "img" https://m.media-amazon.com/images/M/MV5BMTc5MDE2ODcwNV5BMl5BanBnXkFtZTgwMzI2NzQ2NzM@._V1_UY512.jpg
 def convert_query(query):
@@ -23,6 +22,7 @@ def convert_query(query):
 		elif (ord(c)>=97 and ord(c)<=122) or c =='_':
 			final_query+=c
 	return final_query
+
 def do_scrap(query):
 	query = convert_query(query)
 	if len(query) == 0:
@@ -32,9 +32,11 @@ def do_scrap(query):
 	movies =  json.loads(response).get("d")
 	if not movies:
 		return []
+	keys = ["i", "id", "l", "q", "rank", "s", "vt", "y"]
+	movies_parsed = []
 	for d in movies:
-		pass
-	
+		movies_parsed.append({ k : d.get(k) for k in keys})
+	return movies_parsed
 
 if __name__ == "__main__":
 	print(do_scrap("avengers"))
