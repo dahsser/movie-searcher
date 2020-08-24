@@ -1,14 +1,17 @@
 import requests
 import unicodedata
 import json
-from flask import Flask, Response
+from flask import Flask, Response, request, jsonify
 
 app = Flask(__name__)
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def catch_all(path):
-  return Response("<h1>Flask</h1><p>You visited: /%s</p>" % (path), mimetype="text/html")
+	query = request.args.to_dict()
+	q = query.get("q")
+	movies = do_scrap(q)
+	return jsonify({"movies": movies})
 
 # "img" https://m.media-amazon.com/images/M/MV5BMTc5MDE2ODcwNV5BMl5BanBnXkFtZTgwMzI2NzQ2NzM@._V1_UY512.jpg
 def convert_query(query):
