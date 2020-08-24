@@ -9,7 +9,7 @@ app = Flask(__name__)
 @app.route('/<path:path>')
 def catch_all(path):
 	query = request.args.to_dict()
-	q = query.get("q")
+	q = query.get("q") or ""
 	movies = do_scrap(q)
 	return jsonify({"movies": movies})
 
